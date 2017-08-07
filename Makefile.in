@@ -1,0 +1,85 @@
+#*******************************************************************************
+#* Copyright 2012 Kronos Incorporated. All rights reserved.
+#*
+#* File Name : Makefile.in
+#*
+#* Description :
+#*   -- This file is used by autoconf to create the actual Makefile
+#*
+#* Version : 0.1.0
+#*
+#* Created Date : Novemb er 25 2012
+#*
+#* Modification History :
+#*    0.1    RSM    Initial Release
+#*
+#******************************************************************************/
+GCC=@CC@
+OBJDUMP=@OBJDUMP@
+STRIP=@STRIP@
+NM=@NM@
+LD=@CC@
+CPP=@CC@
+
+TARGET=template
+C_SOURCES=template.c
+C_ALWAYS_COMPILE=time.c
+A_SOURCES= 
+C_ALWAYS_OBJS=${C_ALWAYS_COMPILE:%.c=%.o}
+C_OBJS=${C_SOURCES:%.c=%.o}
+A_OBJS=${A_SOURCES:%.s=%.o} 
+OBJS=${C_OBJS} ${A_OBJS}
+C_SOURCES_DEPENDS=${C_ALWAYS_COMPILE:%.c=%.d} ${C_SOURCES:%.c=%.d}
+
+INCLUDE_DIRS=
+CPPFLAGS+=@CPPFLAGS@ ${INCLUDE_DIRS} -DBUG_RELEASE_REVISION=\"`date "+%j%m%Y"`\"
+CFLAGS+=-O2
+LIB_PATHS=
+LDFLAGS+=${LIB_PATHS} @LIBS@ @LDFLAGS@
+.SUFFIXES: .c .o .d
+ifdef DEBUG
+CFLAGS+=-g -pg
+endif
+
+all: ${TARGET} 
+
+${TARGET}: ${OBJS} Makefile  ${C_ALWAYS_OBJS} ${C_SOURCES_DEPENDS}
+	@echo "(LINKING)"
+	@${LD} ${LDFLAGS} ${OBJS} ${C_ALWAYS_OBJS}  -o $@
+	@${OBJDUMP} -D $@ > $@.dissassembled
+ifndef DEBUG
+	@${STRIP} $@
+endif
+
+.c.o:
+	@echo "(COMPILING) $<"
+	@${GCC} ${CPPFLAGS} ${CFLAGS} -c $< 
+
+%.d: %.c
+	@echo "(GENERATING DEPENDENCY) $*.d"
+	@${CPP} ${CPPFLAGS} -M $< > $*.d
+
+.PHONY: clean veryclean 
+
+${C_ALWAYS_OBJS}: ${C_SOURCES} ${C_ALWAYS_COMPILE} Makefile ${C_SOURCES_DEPENDS}
+${C_OBJS}: ${C_SOURCES} Makefile ${C_SOURCES_DEPENDS}
+${C_SOURCES_DEPENDS}: Makefile
+
+clean:
+	@echo "(CLEANING)"
+	@rm -rf ${OBJS} ${C_ALWAYS_OBJS} ${TARGET} ${TARGET}.dissassembled
+
+veryclean: clean
+	@echo "(SUPER CLEANDING)"
+	@rm -rf ${C_SOURCES_DEPENDS}
+	@rm -rf config.log config.status 
+	@rm -rf autom4te.cache
+
+distclean: veryclean
+	@echo "(DISTCLEANING)"
+	@rm -rf config.h
+	@rm -rf Makefile
+
+-include ${C_SOURCES_DEPENDS}
+
+

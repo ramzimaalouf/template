@@ -1,0 +1,62 @@
+/*******************************************************************************
+ * Copyright 2012 Kronos Incorporated. All rights reserved.
+ *
+ * File Name : configure.in
+ *
+ * Description :
+ *    -- This file is used by autoconf to create the configure script.
+ *
+ * Version : 0.1.0
+ *
+ * Created Date : November 25 2012
+ *
+ * Modification History :
+ *    0.1    RSM    Initial Release
+ *
+ ******************************************************************************/
+AC_INIT(template.c)
+
+AC_CANONICAL_SYSTEM
+AC_ARG_PROGRAM
+AC_HEADER_STDC
+AC_CHECK_HEADER(pthread.h,,)
+AC_CHECK_LIB(pthread, pthread_create,[],AC_MSG_ERROR(pthread library not found))
+
+AC_CHECK_TARGET_TOOL([STRIP],strip, no)
+if test "x$STRIP" == "xno" ; then
+AC_MSG_ERROR([Unable to find appropriate strip])
+fi
+
+AC_CHECK_TARGET_TOOL([LD],ld, no)
+if test "x$LD" == "xno" ; then
+AC_MSG_ERROR([Unable to find appropriate ld])
+fi
+
+AC_CHECK_TARGET_TOOL([AS],as, no)
+if test "x$AS" == "xno" ; then
+AC_MSG_ERROR([Unable to find appropriate as])
+fi
+
+AC_CHECK_TARGET_TOOL([NM],nm, no)
+if test "x$NM" == "xno" ; then
+AC_MSG_ERROR([Unable to find appropriate nm])
+fi
+
+AC_CHECK_TARGET_TOOL([OBJDUMP],objdump, no)
+if test "x$OBJDUMP" == "xno" ; then
+AC_MSG_ERROR([Unable to find on appropriate ojdump])
+fi
+AC_SUBST(CC)
+AC_SUBST(CPP)
+AC_SUBST(NM)
+AC_SUBST(LD)
+AC_SUBST(OBJDUMP)
+AC_SUBST(STRIP)
+AC_SUBST(AS)
+AC_SUBST(CPPFLAGS)
+AC_SUBST(CXXFLAGS)
+AC_SUBST(LDFLAGS)
+AC_SUBST(LIBS)
+AC_CONFIG_HEADERS(config.h)
+AC_OUTPUT(Makefile)
+
